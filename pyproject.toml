@@ -26,6 +26,8 @@ dev = ["black", "isort", "mypy>=0.900", "pre-commit>=2.18.0", "pytest", "ruff"]
 
 [project.scripts]
 papersai-summarize = "papersai.cli.summarize:summarize_cli"
+papersai-qna = "papersai.cli.qna:qna_cli"
+
 
 [tool.isort]
 profile = "black"
