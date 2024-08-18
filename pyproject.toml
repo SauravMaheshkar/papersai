@@ -20,7 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
 ]
 dependencies = [
-    "llama-index-core==0.10.65",
+    "llama-index-core==0.10.64",
     "llama-index-embeddings-huggingface",
     "llama-index-llms-anthropic",
     "python-dotenv",
