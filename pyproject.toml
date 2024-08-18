@@ -30,6 +30,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+build = ["build", "twine"]
 dev = ["black", "isort", "mypy>=0.900", "pre-commit>=2.18.0", "pytest", "ruff"]
 hf = ["llama-index-llms-huggingface"]
 
