@@ -23,7 +23,6 @@ dependencies = [
     "llama-index",
     "llama-index-embeddings-huggingface",
     "llama-index-llms-anthropic",
-    "nltk==3.9b1",
     "python-dotenv",
     "requests",
     "rich"
