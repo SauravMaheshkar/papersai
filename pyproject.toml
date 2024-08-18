@@ -23,10 +23,12 @@ dependencies = ["llama-index", "llama-index-embeddings-huggingface", "llama-inde
 
 [project.optional-dependencies]
 dev = ["black", "isort", "mypy>=0.900", "pre-commit>=2.18.0", "pytest", "ruff"]
+hf = ["llama-index-llms-huggingface"]
 
 [project.scripts]
 papersai-summarize = "papersai.cli.summarize:summarize_cli"
 papersai-qna = "papersai.cli.qna:qna_cli"
+daily-papers-cli = "papersai.cli.daily_papers:daily_papers_cli"
 
 
 [tool.isort]
@@ -57,5 +59,6 @@ lines-after-imports = 2
 module = [
     "llama_index.embeddings.huggingface",
     "llama_index.llms.anthropic",
+    "llama_index.llms.huggingface",
 ]
 ignore_missing_imports = true
