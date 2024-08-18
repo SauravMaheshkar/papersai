@@ -19,7 +19,14 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3 :: Only",
 ]
-dependencies = ["llama-index", "llama-index-embeddings-huggingface", "llama-index-llms-anthropic", "python-dotenv", "requests", "rich"]
+dependencies = [
+    "llama-index-core==0.10.66",
+    "llama-index-embeddings-huggingface",
+    "llama-index-llms-anthropic",
+    "python-dotenv",
+    "requests",
+    "rich"
+]
 
 [project.optional-dependencies]
 dev = ["black", "isort", "mypy>=0.900", "pre-commit>=2.18.0", "pytest", "ruff"]
