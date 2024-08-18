@@ -1,44 +1,22 @@
-import argparse
-
-from dotenv import load_dotenv
 from llama_index.core import Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
 
+from papersai.cli.utils import init_model, init_parser
 from papersai.engine.summarize import get_summary
 from papersai.utils import load_paper_as_context
 
 
 def summarize_cli():
     # Define Argument Parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--model",
-        help="Which model to use, one of openai, anthropic or some model from the huggingface hub",  # noqa: E501
-        default="anthropic",
-    )
-    parser.add_argument(
-        "--embedding_model",
-        help="which embedding model to use",
-        default="BAAI/bge-small-en-v1.5",
-    )
-    parser.add_argument(
-        "--paper_id",
-        help="arxiv id of the paper you want to summarize",
-        default=None,
-    )
+    parser = init_parser()
     args = parser.parse_args()
 
     # Initialize Model
-    if args.model == "anthropic":
-        load_dotenv()
-        from llama_index.llms.anthropic import Anthropic
-
-        Settings.llm = Anthropic(temperature=0.0, model="claude-3-haiku-20240307")
-    else:
-        raise NotImplementedError("Only supports Anthropic as of now")
+    llm = init_model(args.model)
+    Settings.llm = llm
 
     # Initialize Embedding Model
     Settings.embed_model = HuggingFaceEmbedding(
