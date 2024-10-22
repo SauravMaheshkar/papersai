@@ -8,6 +8,7 @@ from papersai.cli.utils import init_model, init_parser
 from papersai.index import create_index
 from papersai.utils import load_paper_as_context
 
+
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 

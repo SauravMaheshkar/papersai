@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from llama_index.core import Document, VectorStoreIndex
 
+
 SUPPORTED_INDICES: List[str] = ["llamaindex_vectorstore"]
 
 
