@@ -34,8 +34,8 @@ def init_model(model_id: str) -> BaseLLM:
     Utility Function to initialize a LLM
 
     Args:
-        model_id (str): Which model to use, one of anthropic or
-            some model from the huggingface hub
+        model_id (str): Which model to use, only
+            "anthropic" is supported as of now
 
     Returns:
         A LLM of type `BaseLLM` from llamaindex
@@ -50,14 +50,4 @@ def init_model(model_id: str) -> BaseLLM:
         load_dotenv()
         return Anthropic(temperature=0.0, model="claude-3-haiku-20240307")
     else:
-        try:
-            from llama_index.llms.huggingface import HuggingFaceLLM
-
-            model = HuggingFaceLLM(mode_name=model_id)
-            return model
-        except Exception as e:
-            print(f"Error: {e}")
-        finally:
-            raise ValueError(
-                "Only Anthropic or models from the Huggingface hub are supported"
-            )
+        raise NotImplementedError("Only the Anthropic API is supported as of now")
