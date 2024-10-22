@@ -20,6 +20,11 @@ def init_parser():
         help="arxiv id of the paper you want to summarize",
         default=None,
     )
+    parser.add_argument(
+        "--path_to_pdf",
+        help="path to the pdf file you want to load",
+        default=None,
+    )
 
     return parser
 
