@@ -15,4 +15,4 @@ def get_summary(
     if rich_metadata:
         rich_metadata[0].update(rich_metadata[1], advance=1)
 
-    return summary  # type: ignore
+    return str(summary)
