@@ -20,6 +20,11 @@ def init_parser():
         help="arxiv id of the paper you want to summarize",
         default=None,
     )
+    parser.add_argument(
+        "--path_to_pdf",
+        help="path to the pdf file you want to load",
+        default=None,
+    )
 
     return parser
 
@@ -29,8 +34,8 @@ def init_model(model_id: str) -> BaseLLM:
     Utility Function to initialize a LLM
 
     Args:
-        model_id (str): Which model to use, one of anthropic or
-            some model from the huggingface hub
+        model_id (str): Which model to use, only
+            "anthropic" is supported as of now
 
     Returns:
         A LLM of type `BaseLLM` from llamaindex
@@ -42,9 +47,7 @@ def init_model(model_id: str) -> BaseLLM:
         from dotenv import load_dotenv
         from llama_index.llms.anthropic import Anthropic
 
-        # Load Credentials
         load_dotenv()
-
         return Anthropic(temperature=0.0, model="claude-3-haiku-20240307")
     else:
-        raise NotImplementedError("Only Anthropic Models are officially supported")
+        raise NotImplementedError("Only the Anthropic API is supported as of now")

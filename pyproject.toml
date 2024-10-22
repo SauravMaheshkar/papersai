@@ -30,11 +30,9 @@ dependencies = [
 all = [
     "papersai[build]",
     "papersai[dev]",
-    "papersai[hf]",
 ]
 build = ["build", "twine"]
 dev = ["pre-commit>=2.18.0", "pytest", "ruff"]
-hf = ["llama-index-llms-huggingface"]
 
 [project.scripts]
 papersai-summarize = "papersai.cli.summarize:summarize_cli"
