@@ -47,9 +47,17 @@ def init_model(model_id: str) -> BaseLLM:
         from dotenv import load_dotenv
         from llama_index.llms.anthropic import Anthropic
 
-        # Load Credentials
         load_dotenv()
-
         return Anthropic(temperature=0.0, model="claude-3-haiku-20240307")
     else:
-        raise NotImplementedError("Only Anthropic Models are officially supported")
+        try:
+            from llama_index.llms.huggingface import HuggingFaceLLM
+
+            model = HuggingFaceLLM(mode_name=model_id)
+            return model
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            raise ValueError(
+                "Only Anthropic or models from the Huggingface hub are supported"
+            )
