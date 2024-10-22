@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -8,21 +8,21 @@ repos:
       - id: check-toml
       - id: check-merge-conflict
       - id: detect-private-key
-  - repo: https://github.com/psf/black
-    rev: 24.8.0
+  - repo: local
     hooks:
-      - id: black
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.5
-    hooks:
-      - id: ruff
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
-    hooks:
+      - id: ruff-format
+        name: ruff-format
+        entry: ruff format papersai
+        language: system
+        types: [python]
+      - id: ruff-check
+        name: ruff-check
+        entry: ruff check --fix papersai
+        language: system
+        types: [python]
       - id: mypy
-        additional_dependencies:
-          - "types-requests"
+        name: mypy
+        entry: mypy papersai
+        language: python
+        types: [python]
+        additional_dependencies: ["types-requests"]
