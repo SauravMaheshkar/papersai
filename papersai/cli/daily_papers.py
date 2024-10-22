@@ -13,6 +13,7 @@ from papersai.cli.utils import init_model, init_parser
 from papersai.engine.summarize import get_summary
 from papersai.utils import load_paper_as_context
 
+
 DAILY_PAPERS_ENDPOINT: str = "https://huggingface.co/api/daily_papers"
 
 

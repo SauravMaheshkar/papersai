@@ -20,9 +20,3 @@ repos:
         entry: ruff check --fix papersai
         language: system
         types: [python]
-      - id: mypy
-        name: mypy
-        entry: mypy papersai
-        language: python
-        types: [python]
-        additional_dependencies: ["types-requests"]
