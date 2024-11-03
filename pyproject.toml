@@ -23,16 +23,19 @@ dependencies = [
     "llama-index-llms-anthropic",
     "python-dotenv",
     "requests",
-    "rich"
+    "rich",
+    "weave"
 ]
 
 [project.optional-dependencies]
 all = [
     "papersai[build]",
     "papersai[dev]",
+    "papersai[ui]",
 ]
 build = ["build", "twine"]
 dev = ["pre-commit>=2.18.0", "pytest", "ruff"]
+ui = ["gradio", "langchain", "langchain-anthropic"]
 
 [project.scripts]
 papersai-summarize = "papersai.cli.summarize:summarize_cli"
