@@ -2,6 +2,7 @@ import os
 from typing import List, Optional
 
 import requests
+import weave
 from llama_index.core import Document, SimpleDirectoryReader
 
 
@@ -43,6 +44,7 @@ def download_paper(paper_id: str, path: Optional[str] = "artifacts") -> None:
             )
 
 
+@weave.op
 def load_paper_as_context(
     paper_id: Optional[str] = None,
     file_path: Optional[str] = None,
