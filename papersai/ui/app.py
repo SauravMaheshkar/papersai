@@ -50,6 +50,11 @@ def record_feedback(x: gr.LikeData) -> None:
         None
     """
     call = state.last_response
+
+    # Remove any existing feedback before adding new feedback
+    for existing_feedback in list(call.feedback):
+        call.feedback.purge(existing_feedback.id)
+
     if x.liked:
         call.feedback.add_reaction("👍")
     else:
