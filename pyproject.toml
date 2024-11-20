@@ -24,7 +24,7 @@ dependencies = [
     "python-dotenv",
     "requests",
     "rich",
-    "weave==0.51.19"
+    "weave"
 ]
 
 [project.optional-dependencies]
