@@ -35,7 +35,12 @@ all = [
 ]
 build = ["build", "twine"]
 dev = ["pre-commit>=2.18.0", "pytest", "ruff"]
-ui = ["gradio", "langchain>0.3.5", "langchain-anthropic"]
+ui = [
+    "gradio",
+    "langchain>0.3.5",
+    "langchain-anthropic",
+    "langchain-huggingface"
+]
 
 [project.scripts]
 papersai-summarize = "papersai.cli.summarize:summarize_cli"
