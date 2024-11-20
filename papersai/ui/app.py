@@ -179,16 +179,16 @@ def create_interface():
             gr.Markdown(
                 """
                 <a href="https://github.com/SauravMaheshkar/papersai">
-                    <div align="center">
-                        <h1>papers.ai</h1>
-                    </div>
-                </a>""",
+                    <div align="center"><h1>papers.ai</h1></div>
+                </a>
+                """,
             )
             chatbot = gr.Chatbot(
                 show_label=False,
                 height=600,
                 type="messages",
                 show_copy_all_button=True,
+                placeholder="Upload a research paper and ask questions!!",
             )
 
             chat_input = gr.MultimodalTextbox(
