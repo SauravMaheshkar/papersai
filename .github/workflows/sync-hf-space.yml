@@ -20,8 +20,9 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git clone --depth 1 --filter=blob:none --sparse https://huggingface.co/spaces/SauravMaheshkar/papersai
-          cd REPO_NAME
+          mkdir tmp
+          git clone --depth 1 --filter=blob:none --sparse https://huggingface.co/spaces/SauravMaheshkar/papersai tmp/
+          cd tmp/
           git sparse-checkout set ./
           cp papersai/ui/local.py ./
           git add .
