@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - "papersai/ui/local.py"
+  pull_request:
+    branches: [main]
+    paths:
+      - "papersai/ui/local.py"
 
 jobs:
   sync-file:
