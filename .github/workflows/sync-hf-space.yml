@@ -24,7 +24,7 @@ jobs:
           git clone --depth 1 --filter=blob:none --sparse https://huggingface.co/spaces/SauravMaheshkar/papersai tmp/
           cd tmp/
           git sparse-checkout set ./
-          cp papersai/ui/local.py ./
+          cp ../papersai/ui/local.py ./
           git add .
           git commit -m "gh: sync"
           git push https://SauravMaheshkar:$HF_TOKEN@huggingface.co/SauravMaheshkar/papersai main
