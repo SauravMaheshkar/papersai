@@ -16,17 +16,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Push file to HF
+      - name: Should sync?
+        id: check
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git config --global user.email "sauravvmaheshkar@gmail.com"
-          git config --global user.name "Saurav Maheshkar"
           mkdir tmp
-          git clone --depth 1 --filter=blob:none --sparse https://huggingface.co/spaces/SauravMaheshkar/papersai tmp/
+          git clone --depth 1 https://huggingface.co/spaces/SauravMaheshkar/papersai tmp/
+          if cmp -s "papersai/ui/local.py" "tmp/local.py"; then
+            echo "status=synced" >> $GITHUB_OUTPUT
+          else
+            echo "status=needs_sync" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push file to HF
+        if: steps.check.outputs.status == 'needs_sync'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
           cd tmp/
-          git sparse-checkout set ./
           cp ../papersai/ui/local.py ./
           git add .
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "gh: sync"
           git push https://SauravMaheshkar:$HF_TOKEN@huggingface.co/spaces/SauravMaheshkar/papersai main
