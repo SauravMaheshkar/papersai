@@ -1,0 +1,25 @@
+name: "Sync Local App to HF"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "papersai/ui/local.py"
+
+jobs:
+  sync-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Push file to HF
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse https://huggingface.co/spaces/SauravMaheshkar/papersai
+          cd REPO_NAME
+          git sparse-checkout set ./
+          cp papersai/ui/local.py ./
+          git add .
+          git commit -m "gh: sync"
+          git push https://SauravMaheshkar:$HF_TOKEN@huggingface.co/SauravMaheshkar/papersai main
