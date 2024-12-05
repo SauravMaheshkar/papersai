@@ -1,16 +1,15 @@
+import sys
 from datetime import datetime, timedelta
 from typing import Dict, List
 
 import requests
-from llama_index.core import Settings, VectorStoreIndex
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress
 from rich.prompt import Confirm, Prompt
 
-from papersai.cli.utils import init_model, init_parser
-from papersai.engine.summarize import get_summary
+from papersai.cli.utils import init_parser
+from papersai.engine import Chat, Summarizer
 from papersai.utils import load_paper_as_context
 
 
@@ -67,20 +66,12 @@ def fetch_papers() -> List[Dict[str, str]]:
     return info
 
 
-def daily_papers_cli():
-    # Define Argument Parser
+def daily_papers_cli() -> None:
+    # initialize parser and console
     parser = init_parser()
     args = parser.parse_args()
-
-    # Initialize Model
-    llm = init_model(args.model)
-    Settings.llm = llm
-
-    Settings.embed_model = HuggingFaceEmbedding(
-        model_name=args.embedding_model, trust_remote_code=True
-    )
-
     console = Console()
+
     info = fetch_papers()
     ids = fetch_ids()
 
@@ -88,6 +79,8 @@ def daily_papers_cli():
 
     if Confirm.ask("Do you want the summary of any paper in particular?", default=True):
         paper_id = Prompt.ask("Enter the paper id", choices=ids)
+
+        # Generate Summary and set up chat agent
         with Progress(transient=True) as progress:
             # Download and load paper
             load_docs_task = progress.add_task(
@@ -100,16 +93,42 @@ def daily_papers_cli():
             generate_summaries_task = progress.add_task(
                 "[cyan]generating summary", total=len(context)
             )
-            summary = get_summary(
-                context, rich_metadata=[progress, generate_summaries_task]
+            summary = Summarizer(model=args.model).summarize(
+                context=context, rich_metadata=[progress, generate_summaries_task]
             )
             progress.console.print(Panel(summary, title=f"Summary for {paper_id}"))
         if Confirm.ask(
             "Do you want to ask any questions about this paper?", default=True
         ):
-            index = VectorStoreIndex.from_documents(context)
-            chat_engine = index.as_chat_engine()
-            chat_engine.chat_repl()
+            chat_agent = Chat(model=args.model, context=context)
+
+            while True:
+                try:
+                    # Get user query
+                    query = Prompt.ask("Question:")
+
+                    # Exit if query is "exit"
+                    if query.lower().strip() == "exit":
+                        console.print("\nExiting...")
+                        sys.exit(0)
+
+                    # Get response from chat agent
+                    response = chat_agent.chat(query=query)
+
+                    # Print response
+                    console.print(
+                        Panel(
+                            response,
+                            border_style="blue",
+                            title="Response",
+                            title_align="left",
+                        )
+                    )
+
+                # Exit on KeyboardInterrupt
+                except KeyboardInterrupt:
+                    console.print("\nExiting...")
+                    sys.exit(0)
 
 
 if __name__ == "__main__":
