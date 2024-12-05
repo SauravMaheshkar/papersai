@@ -1,31 +1,25 @@
 import os
+import sys
 
-from llama_index.core import Settings
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from rich.console import Console
+from rich.panel import Panel
 from rich.prompt import Prompt
 
-from papersai.cli.utils import init_model, init_parser
-from papersai.index import create_index
+from papersai.cli.utils import init_parser
+from papersai.engine import Chat
 from papersai.utils import load_paper_as_context
 
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
-def qna_cli():
-    # Define Argument Parser
+def qna_cli() -> None:
+    # initialize parser and console
     parser = init_parser()
     args = parser.parse_args()
+    console = Console()
 
-    # Initialize Model
-    llm = init_model(args.model)
-    Settings.llm = llm
-
-    # Initialize Embedding Model
-    Settings.embed_model = HuggingFaceEmbedding(
-        model_name=args.embedding_model, trust_remote_code=True
-    )
-
+    # Load paper as context
     if args.path_to_pdf is not None:
         context = load_paper_as_context(file_path=args.path_to_pdf)
     else:
@@ -33,10 +27,32 @@ def qna_cli():
             args.paper_id = Prompt.ask("Enter the paper id")
         context = load_paper_as_context(paper_id=args.paper_id)
 
-    # Create Index
-    index = create_index(context=context)
-    chat_engine = index.as_chat_engine()
-    chat_engine.chat_repl()
+    chat_agent = Chat(model=args.model, context=context)
+
+    while True:
+        try:
+            # Get user query
+            query = Prompt.ask("Question:")
+
+            # Exit if query is "exit"
+            if query.lower().strip() == "exit":
+                console.print("\nExiting...")
+                sys.exit(0)
+
+            # Get response from chat agent
+            response = chat_agent.chat(query=query)
+
+            # Print response
+            console.print(
+                Panel(
+                    response, border_style="blue", title="Response", title_align="left"
+                )
+            )
+
+        # Exit on KeyboardInterrupt
+        except KeyboardInterrupt:
+            console.print("\nExiting...")
+            sys.exit(0)
 
 
 if __name__ == "__main__":

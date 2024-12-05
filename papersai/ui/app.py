@@ -1,30 +1,20 @@
+import os
 import time
 from typing import Dict, List, Optional, TypeAlias
 
 import gradio as gr
 import weave
-from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
-from langchain_core.messages import AIMessage, HumanMessage
-from langchain_core.messages.base import BaseMessage
+from litellm import completion
 
-from papersai.utils import load_paper_as_context
+from papersai import Summarizer, load_paper_as_context
 
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 HistoryType: TypeAlias = List[Dict[str, str]]
 
-load_dotenv()
-
-# Initialize the LLM and Weave client
+# Initialize the Weave client
 client = weave.init("papersai")
-llm = init_chat_model(
-    model="claude-3-haiku-20240307",
-    model_provider="anthropic",
-    temperature=0,
-    max_tokens=1024,
-    timeout=None,
-    max_retries=2,
-)
 
 
 class ChatState:
@@ -33,6 +23,23 @@ class ChatState:
     def __init__(self):
         self.context = None
         self.last_response = None
+
+
+def summarize_paper(paper_id: str) -> str:
+    """
+    Summarize the paper with the given arxiv ID.
+
+    Args:
+        paper_id (str): arxiv paper ID
+
+    Returns:
+        str: summarized text from the paper
+    """
+    gr.Info("Downloading paper...")
+    context = load_paper_as_context(paper_id=paper_id)
+    gr.Info("Summarizing ...")
+    summary = Summarizer(model="claude-3-5-sonnet-20240620").summarize(context=context)
+    return gr.Textbox(value=summary, visible=True)
 
 
 def record_feedback(x: gr.LikeData) -> None:
@@ -62,17 +69,18 @@ def record_feedback(x: gr.LikeData) -> None:
 
 
 @weave.op()
-def invoke(messages: List[BaseMessage]) -> BaseMessage:
+def invoke(history: HistoryType):
     """
-    Simple wrapper around the llm.invoke method wrapped in a weave op
+    Simple wrapper around llm inference wrapped in a weave op
 
     Args:
-        messages (List[BaseMessage]): List of messages to pass to the model
+        history (HistoryType): Chat history
 
     Returns:
         BaseMessage: Response from the model
     """
-    return llm.invoke(messages)
+    response = completion(model="claude-3-5-sonnet-20240620", messages=history)
+    return response
 
 
 def update_state(history: HistoryType, message: Optional[Dict[str, str]]):
@@ -98,6 +106,9 @@ def update_state(history: HistoryType, message: Optional[Dict[str, str]]):
         for file_path in message["files"]:
             try:
                 state.context = load_paper_as_context(file_path=file_path)
+                history.append(
+                    {"role": "system", "content": f"Context: {state.context}\n"}
+                )
             except Exception as e:
                 history.append(
                     {"role": "assistant", "content": f"Error loading file: {str(e)}"}
@@ -108,32 +119,6 @@ def update_state(history: HistoryType, message: Optional[Dict[str, str]]):
         history.append({"role": "user", "content": message["text"]})
 
     return history, gr.MultimodalTextbox(value=None, interactive=True)
-
-
-def format_history(history: HistoryType) -> List[BaseMessage]:
-    """
-    Convert chat history to LangChain message format
-
-    Args:
-        history (HistoryType): Chat history
-
-    Returns:
-        List[BaseMessage]: List of messages in LangChain format
-    """
-    messages = []
-
-    # Add context as the first message if available
-    if state.context is not None:
-        messages.append(HumanMessage(content=f"Context: {state.context}"))
-
-    # Add the rest of the conversation
-    for msg in history:
-        if msg["role"] == "user":
-            messages.append(HumanMessage(content=msg["content"]))
-        elif msg["role"] == "assistant":
-            messages.append(AIMessage(content=msg["content"]))
-
-    return messages
 
 
 def bot(history: HistoryType):
@@ -149,19 +134,16 @@ def bot(history: HistoryType):
     if not history:
         return history
 
-    # Convert history to LangChain format
-    messages = format_history(history)
-
     try:
         # Get response from LLM
-        response, call = invoke.call(messages)
+        response, call = invoke.call(history)
         state.last_response = call
 
         # Add empty assistant message
         history.append({"role": "assistant", "content": ""})
 
         # Stream the response
-        for character in response.content:
+        for character in response.choices[0].message.content:
             history[-1]["content"] += character
             time.sleep(0.02)
             yield history
@@ -173,16 +155,37 @@ def bot(history: HistoryType):
 
 def create_interface():
     with gr.Blocks() as demo:
-        with weave.attributes({"session": "local"}):
-            global state
-            state = ChatState()
-            gr.Markdown(
-                """
+        gr.Markdown(
+            """
                 <a href="https://github.com/SauravMaheshkar/papersai">
                     <div align="center"><h1>papers.ai</h1></div>
                 </a>
                 """,
+        )
+
+        with gr.Tab("Summary"):
+            input_id = gr.Textbox(
+                label="Paper ID",
+                placeholder="Enter the arxiv paper ID",
             )
+            output_summary = gr.Textbox(
+                label="Summary",
+                placeholder="Summary will be displayed here",
+                visible=False,
+            )
+            btn = gr.Button(
+                value="Summarize",
+                variant="primary",
+            )
+            btn.click(
+                fn=summarize_paper,
+                inputs=[input_id],
+                outputs=[output_summary],
+            )
+
+        with gr.Tab("Chat"):
+            global state
+            state = ChatState()
             chatbot = gr.Chatbot(
                 show_label=False,
                 height=600,
@@ -196,6 +199,7 @@ def create_interface():
                 file_count="single",
                 placeholder="Upload a document or type your message...",
                 show_label=False,
+                stop_btn=True,
             )
 
             chat_msg = chat_input.submit(

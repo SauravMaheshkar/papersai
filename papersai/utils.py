@@ -1,9 +1,9 @@
 import os
-from typing import List, Optional
+from typing import Optional
 
+import pymupdf4llm
 import requests
 import weave
-from llama_index.core import Document, SimpleDirectoryReader
 
 
 ARXIV_PDF_URL: str = "https://arxiv.org/pdf/"
@@ -49,8 +49,7 @@ def load_paper_as_context(
     paper_id: Optional[str] = None,
     file_path: Optional[str] = None,
     save_path: Optional[str] = "artifacts",
-    verbose: Optional[bool] = False,
-) -> List[Document]:
+) -> str:
     """
     Given either the arxiv id or the path to a paper, this function
     downloads the paper and loads it as context.
@@ -68,23 +67,18 @@ def load_paper_as_context(
         AssertionError: If paper id or file path is not provided
 
     Returns:
-        (List[Document]): list of llamaindex document objects for the paper.
+        str: parsed text from the paper
     """
     # If paper_id is provided
     if paper_id is not None:
         download_paper(paper_id=paper_id)
-        reader = SimpleDirectoryReader(
-            input_dir=f"{save_path}/",
-            input_files=[f"{save_path}/{paper_id}.pdf"],
+        context = pymupdf4llm.to_markdown(
+            f"{save_path}/{paper_id}.pdf", show_progress=False
         )
     # If file_path is provided
     elif file_path is not None:
-        reader = SimpleDirectoryReader(
-            input_files=[file_path],
-        )
+        context = pymupdf4llm.to_markdown(file_path, show_progress=False)
     else:
         raise AssertionError("Either paper_id or file_path must be provided")
-
-    context = reader.load_data(show_progress=verbose)
 
     return context
