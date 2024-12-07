@@ -39,7 +39,7 @@ CHAT_SYSTEM_PROMPT: str = (
 )
 
 
-def print_like_dislike(x: gr.LikeData):
+def log_user_feedback(x: gr.LikeData):
     """
     Logs user feedback on the assistant's response in the form of a
     like/dislike reaction.
@@ -153,7 +153,7 @@ with gr.Blocks() as demo:
 
     # Record user feedback on assistant's response
     chatbot.like(
-        fn=print_like_dislike, inputs=None, outputs=None, like_user_message=True
+        fn=log_user_feedback, inputs=None, outputs=None, like_user_message=True
     )
 
 demo.launch()
