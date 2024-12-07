@@ -117,6 +117,9 @@ def bot_response(history: list):
         response, call = llm_response.call(history)
         call_id = call.id
 
+    # Add trace link to the assistant's response
+    response += f"\n\n[View trace](https://wandb.ai/{client.entity}/{client.project}/weave/calls/{call.id})"
+
     # Add empty assistant message
     history.append({"role": "assistant", "content": ""})
 
