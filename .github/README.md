@@ -2,7 +2,18 @@ Reason about papers using LLMs
 
 ## Usage 🚀
 
-Make sure you create a `.env` file with your Anthropic and wandb key (`ANTHROPIC_API_KEY` + `WANDB_API_KEY`).
+> [!NOTE]
+> <details>
+>  <summary>Create a <code>.env</code> file</summary>
+> 
+>  Make sure you create a `.env` file with your Anthropic (or OpenAI) and wandb keys.
+>  
+>  ```
+>  ANTHROPIC_API_KEY="YOUR_API_KEY"
+>  WANDB_API_KEY="YOUR_API_KEY"
+>  ```
+>
+> </details>
 
 * To start a local llm app run `papersai-ui` (or use a free hosted variant as a [hf space](https://huggingface.co/spaces/SauravMaheshkar/papersai))
 * To start a cli app to summarize a paper run `papersai-summarize`
